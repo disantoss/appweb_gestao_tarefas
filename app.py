@@ -19,7 +19,7 @@ st.markdown("""
     [data-testid="stAppViewContainer"] { background-color: #0D0705; color: #E0E0E0; font-family: 'Inter', sans-serif; }
     [data-testid="stSidebar"] { background-color: #1A110A; border-right: 1px solid #332211; }
     h1, h2, h3 { color: #C8973A !important; }
-    .stButton>button { border: 1px solid #C8973A; color: #C8973A; border-radius: 8px; background-color: transparent; transition: 0.3s; width: 100%; }
+    .stButton>button { border: 1px solid #C8973A; color: #C8973A; border-radius: 8px; background-color: transparent; transition: 0.3s; width: 100%; padding: 4px; }
     .stButton>button:hover { background-color: #C8973A; color: #0D0705; }
     div[data-testid="stMetricValue"] { color: #C8973A; }
     .task-card { background-color: #1A110A; padding: 15px; border-radius: 8px; border-left: 4px solid #C8973A; margin-bottom: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
@@ -61,6 +61,9 @@ def save_tasks(tasks):
 if 'tasks' not in st.session_state:
     st.session_state.tasks = load_tasks()
 
+if 'editing_task_id' not in st.session_state:
+    st.session_state.editing_task_id = None
+
 def update_task_status(task_id, new_status):
     for t in st.session_state.tasks:
         if t['id'] == task_id:
@@ -72,6 +75,8 @@ def update_task_status(task_id, new_status):
 
 def delete_task(task_id):
     st.session_state.tasks = [t for t in st.session_state.tasks if t['id'] != task_id]
+    if st.session_state.editing_task_id == task_id:
+        st.session_state.editing_task_id = None
     save_tasks(st.session_state.tasks)
     st.rerun()
 
@@ -135,7 +140,48 @@ if menu == "➕ Nova Tarefa":
 elif menu == "📋 Quadro Kanban":
     st.header("Quadro de Atividades")
     
-    # Filtros
+    # 📝 PAINEL DE EDIÇÃO ATIVA (Aparece dinamicamente no topo quando clicado)
+    if st.session_state.editing_task_id:
+        task_to_edit = next((t for t in st.session_state.tasks if t['id'] == st.session_state.editing_task_id), None)
+        if task_to_edit:
+            st.markdown("### 📝 Editar Detalhes da Tarefa")
+            with st.form("edit_task_form"):
+                col1, col2 = st.columns(2)
+                categories = ["BI/Dashboard", "Análise", "Reunião", "Banco de Dados", "Relatório", "Outros"]
+                priorities = ["🔴 Urgente", "🟡 Alta", "🟢 Normal", "⚪ Baixa"]
+                
+                with col1:
+                    e_title = st.text_input("Título da Tarefa*", value=task_to_edit['title'])
+                    e_category = st.selectbox("Categoria", categories, index=categories.index(task_to_edit['category']) if task_to_edit['category'] in categories else 0)
+                    e_priority = st.selectbox("Prioridade", priorities, index=priorities.index(task_to_edit['priority']) if task_to_edit['priority'] in priorities else 0)
+                with col2:
+                    e_deadline = st.date_input("Prazo*", value=datetime.strptime(task_to_edit['deadline'], '%Y-%m-%d').date())
+                    e_est_hours = st.number_input("Estimativa (Horas)", min_value=0.5, step=0.5, value=float(task_to_edit['est_hours']))
+                    e_tags = st.text_input("Tags (separadas por vírgula)", value=task_to_edit.get('tags', ''))
+                
+                e_desc = st.text_area("Descrição", value=task_to_edit['desc'])
+                
+                ce1, ce2 = st.columns([1, 6])
+                with ce1:
+                    if st.form_submit_button("Atualizar"):
+                        task_to_edit['title'] = e_title
+                        task_to_edit['category'] = e_category
+                        task_to_edit['priority'] = e_priority
+                        task_to_edit['deadline'] = str(e_deadline)
+                        task_to_edit['est_hours'] = e_est_hours
+                        task_to_edit['tags'] = e_tags
+                        task_to_edit['desc'] = e_desc
+                        task_to_edit['history'].append(f"[{datetime.now().strftime('%Y-%m-%d %H:%M')}] Modificada via Edição")
+                        save_tasks(st.session_state.tasks)
+                        st.session_state.editing_task_id = None
+                        st.rerun()
+                with ce2:
+                    if st.form_submit_button("Cancelar"):
+                        st.session_state.editing_task_id = None
+                        st.rerun()
+            st.markdown("---")
+
+    # Filtros de busca e visualização
     f_col1, f_col2, f_col3 = st.columns(3)
     busca = f_col1.text_input("🔍 Buscar tarefa...")
     f_cat = f_col2.selectbox("Filtrar Categoria", ["Todas"] + ["BI/Dashboard", "Análise", "Reunião", "Banco de Dados", "Relatório", "Outros"])
@@ -149,7 +195,7 @@ elif menu == "📋 Quadro Kanban":
         with cols[i]:
             st.markdown(f"<h3 style='text-align: center; font-size: 18px;'>{status}</h3>", unsafe_allow_html=True)
             
-            # Filtrar tarefas da coluna
+            # Filtragem lógica das tarefas
             tasks_col = [t for t in st.session_state.tasks if t['status'] == status]
             if busca:
                 tasks_col = [t for t in tasks_col if busca.lower() in t['title'].lower() or busca.lower() in t['desc'].lower()]
@@ -170,16 +216,20 @@ elif menu == "📋 Quadro Kanban":
                 </div>
                 """, unsafe_allow_html=True)
                 
-                # Layout de botões: Voltar | Excluir | Avançar
-                b1, b2, b3 = st.columns([1, 1, 1])
+                # Layout de botões expandido: Voltar | Editar | Excluir | Avançar
+                b1, b2, b3, b4 = st.columns(4)
                 with b1:
                     if i > 0:
                         if st.button("⬅️", key=f"prev_{t['id']}"):
                             update_task_status(t['id'], status_list[i-1])
                 with b2:
+                    if st.button("📝", key=f"edit_{t['id']}"):
+                        st.session_state.editing_task_id = t['id']
+                        st.rerun()
+                with b3:
                     if st.button("❌", key=f"del_{t['id']}"):
                         delete_task(t['id'])
-                with b3:
+                with b4:
                     if i < 3:
                         if st.button("➡️", key=f"next_{t['id']}"):
                             update_task_status(t['id'], status_list[i+1])
