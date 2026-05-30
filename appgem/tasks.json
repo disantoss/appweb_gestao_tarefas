@@ -1,0 +1,38 @@
+[
+    {
+        "id": "d7ecfae0-1882-466f-a981-e4802d664803",
+        "title": "Cria\u00e7\u00e3o Views banco de Dados Grupo Noz",
+        "desc": "Fiz as Views que tem no banco de dados com ajuda do Jeferson as views s\u00e3o :\nvw_BI_dFuncionario (Nome da tabela/view) :\nFuncionario_ID\nFuncionario_Nome\nLoja_ID\nSK_Funcionario\nStatus\nTurno de Trabalho\nvw_BI_dLoja (Nome da tabela/view) : \nLoja_ID\nLoja_Nome\nvw_BI_dMaterial (Nome da tabela/view) : \nCategoria\ncodigo\ndescricao\nGrupo_Original\nLoja_ID\nMaterial_ID\nSK Material\nvw_BI_fVendas :\nData\ndt_hr_abertura\ndt_hr_ultimo_consumo\nFaturamento_Bruto\nfunc_atendeu_id\nloja_id\nModoVenda\nProduto_ID\nqtd_pessoas\nSK Material\nSK_Funcionario\nTurno_Venda\nvenda_id",
+        "category": "Banco de Dados",
+        "priority": "\ud83d\udd34 Urgente",
+        "deadline": "2026-05-29",
+        "est_hours": 5.0,
+        "tags": "",
+        "status": "Conclu\u00eddo",
+        "history": [
+            "[2026-05-29 00:16] Criada",
+            "[2026-05-29 00:16] A Fazer \u2794 Em Andamento",
+            "[2026-05-29 00:16] Em Andamento \u2794 Em Revis\u00e3o",
+            "[2026-05-29 00:16] Em Revis\u00e3o \u2794 Conclu\u00eddo"
+        ],
+        "pomodoros": 0
+    },
+    {
+        "id": "c3d6eaec-cded-4d55-8557-ac972e20c165",
+        "title": "Vis\u00e3o Eficiencia Gar\u00e7ons NYC",
+        "desc": "Fiz uma vis\u00e3o de taxa de eficiencia dos gar\u00e7ons do nyc, com graficos e filtros e separa\u00e7\u00e3o por categorias principais.",
+        "category": "BI/Dashboard",
+        "priority": "\ud83d\udd34 Urgente",
+        "deadline": "2026-05-29",
+        "est_hours": 6.0,
+        "tags": "",
+        "status": "Conclu\u00eddo",
+        "history": [
+            "[2026-05-29 00:18] Criada",
+            "[2026-05-29 00:18] A Fazer \u2794 Em Andamento",
+            "[2026-05-29 00:18] Em Andamento \u2794 Em Revis\u00e3o",
+            "[2026-05-29 00:18] Em Revis\u00e3o \u2794 Conclu\u00eddo"
+        ],
+        "pomodoros": 0
+    }
+]
