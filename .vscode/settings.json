@@ -1,0 +1,4 @@
+{
+    "appService.defaultWebAppToDeploy": "/subscriptions/c3620d3c-11ca-4c0e-bd7a-2be843052a76/resourceGroups/appsvc_linux_eastus/providers/Microsoft.Web/sites/app-tarefas",
+    "appService.deploySubpath": "."
+}
